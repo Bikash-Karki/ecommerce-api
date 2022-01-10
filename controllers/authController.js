@@ -4,6 +4,7 @@ const sendEmail = require('../utils/setEmail');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken'); //authentication
 const expressJwt = require('express-jwt'); //authorization
+// const html = require('./template.html')
 //register user and send email confirmation link
 
 exports.userRegistration = async (req, res) => {
@@ -24,13 +25,16 @@ exports.userRegistration = async (req, res) => {
  if (!token) {
   return res.status(400).json({ error: 'Something went wrong' })
  }
+ const url = process.env.FRONTEND_URL+'\/email\/confirmation\/'+token.token
  //send email
  sendEmail({
   from: 'no-reply@ecommerce.com',
   to: user.email,
   subject: 'Email Verification Link',
   text: `Hello, \n \n Please confirm your email by copying the below link :\n\n 
-  http:\/\/${req.headers.host}\/api\/confirmation\/${token.token}`
+  http:\/\/${req.headers.host}\/api\/confirmation\/${token.token}`,
+  html: `<h2>Verify Your Email</h2>
+  <button><a href = ${url}>Verify</a></button>`
   //http:localhost:5000/api/confirmation/984uenf39
 
  })
@@ -51,7 +55,7 @@ exports.postEmailConfirmation = (req, res) => {
    }
    //check if user is already verified
    if (user.isVerified) {
-    return res.status(400).json({ error: `Dear ${user.name}, Your Email: "${user.email}" has already been verified, Login to continue` })
+    return res.status(400).json({ error: `Dear ${user.name}, Your Email: ${user.email} has already been verified, Login to continue` })
    }
    //save the verified user
    user.isVerified = true;

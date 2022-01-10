@@ -47,3 +47,43 @@ exports.orderList = async(req, res)=> {
  res.send(order)
 
 }
+//
+
+exports.orderDetails = async(req, res)=>{
+ const order = await Order.findById(req.params.id).populate('user', 'name').populate({
+  path:'orderItems', populate:'category'
+ })
+ if(!order){
+  return res.status(400).json({error:'Something Went Wrong'})
+ }
+ res.send(order)
+}
+
+//delete order
+exports.deleteOrder = (req, res)=>{
+ Order.findByIdAndRemove(req.params.id).then(async(order)=>{
+  if(order){
+   await order.orderItems.map(async orderItem =>{
+    await OrderItem.findByIdAndRemove(orderItem)
+   })
+   return res.json({message:'The order has been deleted'})
+  }
+  else{
+   return res.status(400).json({error:'Order not found'})
+  }
+ }).catch(err =>{
+  return res.status(400).json({error:err})
+ })
+}
+//user Order
+exports.userOrders = async(req,res)=>{
+ const userOrderList = await Order.find({user:req.params.userid}).populate({
+  path:'orderItems', populate:{
+   path:'product', populate:'category'
+  }
+ }).sort({dateOrdered:-1})
+ if(!userOrderList){
+  res.status(500).join({error:'Something went wrong'})
+ }
+ res.send(userOrderList)
+}

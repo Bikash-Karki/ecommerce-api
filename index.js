@@ -4,6 +4,7 @@ const expressValidator = require('express-validator')
 const db = require('./database/connection')
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser');
+const cors = require('cors')
 
 const categoryRoute = require('./routes/categoryRoute')
 const productRoute = require('./routes/productRoute')
@@ -19,6 +20,7 @@ app.get('/hello', (req, res)=>{
  res.send(`Hello World, Welcome to Express JS and NODE`)
 })
 app.use(cookieParser())
+app.use(cors())
 
 
 //routes
